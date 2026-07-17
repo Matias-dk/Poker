@@ -206,6 +206,14 @@ export function remainingTime(s: TournamentState, now: number): number {
   return Math.max(0, s.remainingMs);
 }
 
+/** 1 -> "1st", 2 -> "2nd", 11 -> "11th" ... */
+export function ordinal(n: number): string {
+  const v = n % 100;
+  if (v >= 11 && v <= 13) return `${n}th`;
+  const suffix = ["th", "st", "nd", "rd"][n % 10] ?? "th";
+  return `${n}${suffix}`;
+}
+
 export function formatClock(ms: number): string {
   const total = Math.ceil(ms / 1000);
   const m = Math.floor(total / 60);
@@ -277,7 +285,7 @@ export function addTable(name: string, capacity: number) {
     ...s,
     tables: [
       ...s.tables,
-      { id: makeId("table"), name: name.trim() || `Bord ${s.tables.length + 1}`, capacity },
+      { id: makeId("table"), name: name.trim() || `Table ${s.tables.length + 1}`, capacity },
     ],
   }));
 }

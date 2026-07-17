@@ -7,6 +7,7 @@ import {
   currentLevel,
   formatClock,
   nextBlindLevel,
+  ordinal,
   placements,
   tick,
   useTournament,
@@ -43,6 +44,11 @@ function Dashboard({ s, now }: { s: TournamentState; now: number }) {
     : null;
   const placeMap = placements(s);
 
+  // Scoreliste: alle med en placering, bedste placering øverst
+  const standings = [...s.players]
+    .filter((p) => placeMap.has(p.id))
+    .sort((a, b) => (placeMap.get(a.id) ?? 0) - (placeMap.get(b.id) ?? 0));
+
   return (
     <div className="display">
       <header className="display-header">
@@ -53,27 +59,27 @@ function Dashboard({ s, now }: { s: TournamentState; now: number }) {
       <div className="display-main">
         <div className="display-clockbox">
           <div className="display-levelname">
-            {level.isBreak ? "☕ Pause" : `Niveau ${s.levelIndex + 1}`}
+            {level.isBreak ? "☕ Break" : `Level ${s.levelIndex + 1}`}
           </div>
           <div
             className={`display-clock ${s.running ? "" : "paused"} ${urgent ? "urgent" : ""}`}
           >
             {formatClock(remaining)}
           </div>
-          <div className="display-paused-note">{s.running ? "" : "· pause ·"}</div>
+          <div className="display-paused-note">{s.running ? "" : "· paused ·"}</div>
         </div>
 
         <div className="display-blindsbox">
           <div className="label">Blinds</div>
           <div className="display-blinds goldtext">
-            {level.isBreak ? "PAUSE" : `${level.sb} / ${level.bb}`}
+            {level.isBreak ? "BREAK" : `${level.sb} / ${level.bb}`}
           </div>
           <div className="display-nextblinds">
             {next
               ? next.isBreak
-                ? "Næste: Pause"
-                : `Næste: ${next.sb} / ${next.bb}`
-              : "Sidste niveau"}
+                ? "Next: Break"
+                : `Next: ${next.sb} / ${next.bb}`
+              : "Final level"}
           </div>
         </div>
       </div>
@@ -84,46 +90,62 @@ function Dashboard({ s, now }: { s: TournamentState; now: number }) {
             {actives.length}
             <span style={{ opacity: 0.5 }}> / {s.players.length}</span>
           </div>
-          <div className="label">Spillere tilbage</div>
+          <div className="label">Players left</div>
         </div>
         <div className="stat">
           <div className="value">{s.tables.length}</div>
-          <div className="label">Borde</div>
+          <div className="label">Tables</div>
         </div>
         <div className="stat">
           <div className="value">{s.eliminationOrder.length}</div>
-          <div className="label">Slået ud</div>
+          <div className="label">Knocked out</div>
         </div>
       </div>
 
-      <div className="display-tables">
-        {s.tables.map((t) => {
-          const seated = s.players
-            .filter((p) => p.tableId === t.id && !outIds.has(p.id))
-            .sort((a, b) => (a.seat ?? 99) - (b.seat ?? 99));
-          return (
-            <div key={t.id} className="display-table">
-              <h3>
-                {t.name} <span className="n">{seated.length}</span>
-              </h3>
-              <ul>
-                {seated.map((p) => (
-                  <li key={p.id}>
-                    <span className="seatno">{p.seat ?? "·"}</span>
-                    {p.name}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          );
-        })}
+      <div className="display-body">
+        <div className="display-tables">
+          {s.tables.map((t) => {
+            const seated = s.players
+              .filter((p) => p.tableId === t.id && !outIds.has(p.id))
+              .sort((a, b) => (a.seat ?? 99) - (b.seat ?? 99));
+            return (
+              <div key={t.id} className="display-table">
+                <h3>
+                  {t.name} <span className="n">{seated.length}</span>
+                </h3>
+                <ul>
+                  {seated.map((p) => (
+                    <li key={p.id}>
+                      <span className="seatno">{p.seat ?? "·"}</span>
+                      {p.name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
+        </div>
+
+        {standings.length > 0 && (
+          <aside className="display-standings">
+            <h3>🏅 Standings</h3>
+            <ul>
+              {standings.map((p) => (
+                <li key={p.id}>
+                  <span className="placeno">{ordinal(placeMap.get(p.id)!)}</span>
+                  <span className="pname">{p.name}</span>
+                </li>
+              ))}
+            </ul>
+          </aside>
+        )}
       </div>
 
       <footer className="display-footer">
         {lastOut && (
           <>
-            Senest ude: <span className="outname">{lastOut.name}</span> (
-            {placeMap.get(lastOut.id)}. plads)
+            Last out: <span className="outname">{lastOut.name}</span> (
+            {ordinal(placeMap.get(lastOut.id) ?? 0)})
           </>
         )}
       </footer>
@@ -131,10 +153,10 @@ function Dashboard({ s, now }: { s: TournamentState; now: number }) {
   );
 }
 
-// ==================== RESULTAT-FILM ====================
+// ==================== RESULTS FILM ====================
 //
-// Kører automatisk: intro → placeringerne afsløres én ad
-// gangen fra sidstepladsen og op → podie med top 3 + konfetti.
+// Plays automatically: intro → placements revealed one at a
+// time from last place upwards → podium with top 3 + confetti.
 
 function ResultsFilm({ s }: { s: TournamentState }) {
   const placeMap = placements(s);
@@ -142,11 +164,11 @@ function ResultsFilm({ s }: { s: TournamentState }) {
     return [...s.players]
       .filter((p) => placeMap.has(p.id))
       .map((p) => ({ name: p.name, place: placeMap.get(p.id)! }))
-      .sort((a, b) => b.place - a.place); // sidsteplads først
+      .sort((a, b) => b.place - a.place); // last place first
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [s.players, s.eliminationOrder]);
 
-  // step 0 = intro, derefter én pr. afsløring, til sidst podiet
+  // step 0 = intro, then one per reveal, finally the podium
   const [step, setStep] = useState(0);
   const reveals = standings.filter((x) => x.place > 3);
   const totalSteps = 1 + reveals.length + 1;
@@ -172,20 +194,20 @@ function ResultsFilm({ s }: { s: TournamentState }) {
           <div className="film-title goldtext" style={{ marginTop: "3vh" }}>
             {s.title}
           </div>
-          <div className="film-sub">Resultatet…</div>
+          <div className="film-sub">The results…</div>
         </>
       )}
 
       {revealing && (
         <div className="film-reveal" key={revealing.place}>
-          <div className="film-place">{revealing.place}. plads</div>
+          <div className="film-place">{ordinal(revealing.place)} place</div>
           <div className="film-name">{revealing.name}</div>
         </div>
       )}
 
       {showingPodium && (
         <>
-          <div className="film-title goldtext">Vinderne</div>
+          <div className="film-title goldtext">The Winners</div>
           <div className="film-podium">
             <div className="podium-col second">
               <div className="p-name">{top(2)?.name ?? "—"}</div>

@@ -1,49 +1,51 @@
 # Ranum Summer School Poker 🃏
 
-Turneringsstyring til pokerturneringen på Ranum Summer School — uden database,
-klar til Vercel.
+Tournament manager for the Ranum Summer School poker tournament — no
+database, ready for Vercel.
 
-## Sådan bruges det
+## How to use
 
-1. **Kontrolpanelet** ligger på forsiden (`/`). Herfra styrer du alt:
-   - **Deltagere**: indsæt navne (ét pr. linje) eller upload en `.txt`/`.csv`-fil.
-   - **Borde**: opret borde med navn og antal pladser, og tryk
-     *“🎲 Fordel pladser tilfældigt”* for at trække pladser til alle.
-   - **Ude**: når en spiller ryger ud, tryk *“Ude”* — placeringen registreres
-     automatisk (første der ryger ud får sidstepladsen). *“Fortryd”* hvis du
-     kom til at trykke forkert.
-   - **Blinds**: uret tæller ned og hæver selv blinds ved niveauskift. Du kan
-     også skifte manuelt med *“Næste niveau”* og redigere hele strukturen.
-2. **Storskærmen** åbnes med knappen *“Åbn storskærm ↗”* (eller gå til
-   `/display`). Træk vinduet over på storskærmen/projektoren og tryk `F11`
-   for fuld skærm. Den opdaterer live, mens du styrer fra kontrolpanelet.
-3. **Resultat-filmen**: når turneringen er slut, tryk
-   *“🎬 Vis resultat-film på storskærm”* — placeringerne afsløres én ad
-   gangen fra sidstepladsen, og til sidst vises podiet med top 3 og konfetti.
+1. **The control panel** is on the front page (`/`). Run everything from here:
+   - **Players**: paste names (one per line) or upload a `.txt`/`.csv` file.
+   - **Tables**: create tables with a name and number of seats, then press
+     *“🎲 Random seat draw”* to seat everyone.
+   - **Out**: when a player is knocked out, press *“Out”* — the placement is
+     recorded automatically (the first player out gets last place). Press
+     *“Undo”* if you mis-clicked.
+   - **Blinds**: the clock counts down and raises the blinds automatically at
+     each level change. You can also switch manually with *“Next level”* and
+     edit the whole structure.
+2. **The big screen** opens with the *“Open big screen ↗”* button (or go to
+   `/display`). Drag the window to the big screen/projector and press `F11`
+   for fullscreen. It updates live while you run things from the control
+   panel, and shows a standings list of everyone knocked out and their
+   placements.
+3. **The results film**: when the tournament is over, press
+   *“🎬 Play results film on big screen”* — placements are revealed one at a
+   time from last place, ending with the top-3 podium and confetti.
 
-> **Vigtigt:** Der er ingen database. Tilstanden gemmes i browserens
-> localStorage og synkroniseres live mellem faner/vinduer i **samme browser
-> på samme computer**. Kør derfor både kontrolpanel og storskærm fra den
-> computer, der er koblet til storskærmen. Data overlever genindlæsning af
-> siden.
+> **Important:** There is no database. State is stored in the browser's
+> localStorage and synced live between tabs/windows in the **same browser on
+> the same computer**. Run both the control panel and the big screen from
+> the computer connected to the big screen. Data survives page reloads.
 
-## Fast opsætning i koden
+## Fixed setup in code
 
-Standard-opsætningen ligger i [`data/config.ts`](data/config.ts):
-turneringens navn, faste deltagere, faste borde og blind-strukturen.
-Ret filen og deploy igen, hvis du vil have det hele klar på forhånd.
+The default setup lives in [`data/config.ts`](data/config.ts): the
+tournament title, pre-registered players, pre-created tables and the blind
+structure. Edit the file and redeploy to have everything ready in advance.
 
-## Kør lokalt
+## Run locally
 
 ```bash
 npm install
 npm run dev
 ```
 
-Åbn http://localhost:3000
+Open http://localhost:3000
 
-## Deploy til Vercel
+## Deploy to Vercel
 
-Importér repoet på [vercel.com](https://vercel.com) — det er en standard
-Next.js-app, så der skal ikke sættes noget op. Ingen miljøvariabler, ingen
-database.
+Import the repo on [vercel.com](https://vercel.com) — it is a standard
+Next.js app, so nothing needs to be configured. No environment variables,
+no database.

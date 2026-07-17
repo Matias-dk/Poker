@@ -15,6 +15,7 @@ import {
   movePlayer,
   nextBlindLevel,
   nextLevel,
+  ordinal,
   pauseTimer,
   placements,
   prevLevel,
@@ -56,11 +57,11 @@ export default function AdminPage() {
         <Logo size={54} />
         <div>
           <h1 className="goldtext">{s.title}</h1>
-          <div className="sub">Kontrolpanel — styr turneringen herfra</div>
+          <div className="sub">Control panel — run the tournament from here</div>
         </div>
         <div className="spacer" />
         <a href="/display" target="_blank" rel="noopener">
-          <button className="btn primary big">Åbn storskærm ↗</button>
+          <button className="btn primary big">Open big screen ↗</button>
         </a>
       </header>
 
@@ -88,22 +89,22 @@ function ClockPanel({ s, now }: { s: S; now: number }) {
 
   return (
     <div className="panel">
-      <h2>Ur &amp; blinds</h2>
+      <h2>Clock &amp; blinds</h2>
       <div className="clock-level">
-        {level.isBreak ? "Pause" : `Niveau ${s.levelIndex + 1}`} af {s.levels.length}
+        {level.isBreak ? "Break" : `Level ${s.levelIndex + 1}`} of {s.levels.length}
       </div>
       <div className={`clock-time ${s.running ? "" : "paused"}`}>
         {formatClock(remaining)}
       </div>
       <div className="clock-blinds">
-        {level.isBreak ? "— PAUSE —" : `Blinds ${level.sb} / ${level.bb}`}
+        {level.isBreak ? "— BREAK —" : `Blinds ${level.sb} / ${level.bb}`}
       </div>
       <div className="clock-next">
         {next
           ? next.isBreak
-            ? "Næste: Pause"
-            : `Næste: ${next.sb} / ${next.bb}`
-          : "Sidste niveau"}
+            ? "Next: Break"
+            : `Next: ${next.sb} / ${next.bb}`
+          : "Final level"}
       </div>
       <div className="row">
         {s.running ? (
@@ -116,22 +117,22 @@ function ClockPanel({ s, now }: { s: S; now: number }) {
           </button>
         )}
         <button className="btn" onClick={prevLevel} disabled={s.levelIndex === 0}>
-          ◀ Forrige
+          ◀ Previous
         </button>
         <button
           className="btn"
           onClick={nextLevel}
           disabled={s.levelIndex >= s.levels.length - 1}
         >
-          Næste niveau ▶
+          Next level ▶
         </button>
         <button className="btn" onClick={resetLevelClock}>
-          ↺ Nulstil ur
+          ↺ Reset clock
         </button>
       </div>
       <div className="hint">
-        Uret skifter selv til næste niveau, når tiden løber ud. Blinds hæves
-        med “Næste niveau”.
+        The clock advances to the next level automatically when time runs out.
+        Raise the blinds manually with “Next level”.
       </div>
     </div>
   );
@@ -142,9 +143,9 @@ function LevelsPanel({ s }: { s: S }) {
   return (
     <div className="panel">
       <h2>
-        Blind-struktur
+        Blind structure
         <button className="btn small" onClick={() => setOpen(!open)}>
-          {open ? "Skjul" : "Redigér"}
+          {open ? "Hide" : "Edit"}
         </button>
       </h2>
       {open && (
@@ -156,7 +157,7 @@ function LevelsPanel({ s }: { s: S }) {
                 <th>Small</th>
                 <th>Big</th>
                 <th>Min.</th>
-                <th>Pause</th>
+                <th>Break</th>
                 <th></th>
               </tr>
             </thead>
@@ -211,7 +212,7 @@ function LevelsPanel({ s }: { s: S }) {
           </table>
           <div className="row" style={{ marginTop: 10 }}>
             <button className="btn small" onClick={addLevelRow}>
-              + Tilføj niveau
+              + Add level
             </button>
           </div>
         </>
@@ -250,23 +251,23 @@ function PlayersPanel({
   return (
     <div className="panel">
       <h2>
-        Deltagere{" "}
+        Players{" "}
         <span className="count">
-          {actives.length} tilbage af {s.players.length}
+          {actives.length} of {s.players.length} remaining
         </span>
       </h2>
       <textarea
         className="names"
-        placeholder={"Ét navn pr. linje…\nAnna\nBo\nClara"}
+        placeholder={"One name per line…\nAnna\nBen\nClara"}
         value={text}
         onChange={(e) => setText(e.target.value)}
       />
       <div className="row">
         <button className="btn primary" onClick={submitNames} disabled={!text.trim()}>
-          Tilføj deltagere
+          Add players
         </button>
         <button className="btn" onClick={() => fileRef.current?.click()}>
-          📄 Upload liste (.txt/.csv)
+          📄 Upload list (.txt/.csv)
         </button>
         <input
           ref={fileRef}
@@ -280,8 +281,8 @@ function PlayersPanel({
       <div style={{ marginTop: 14 }}>
         {s.players.length === 0 && (
           <div className="hint">
-            Ingen deltagere endnu. Indsæt navne ovenfor eller upload en fil —
-            du kan også skrive dem fast ind i <code>data/config.ts</code>.
+            No players yet. Paste names above or upload a file — you can also
+            hard-code them in <code>data/config.ts</code>.
           </div>
         )}
         {s.players.map((p) => {
@@ -292,9 +293,9 @@ function PlayersPanel({
               <span className="name">{p.name}</span>
               {out ? (
                 <>
-                  <span className="badge">{place}. plads</span>
+                  <span className="badge">{place ? ordinal(place) : "—"} place</span>
                   <button className="btn small" onClick={() => undoElimination(p.id)}>
-                    Fortryd
+                    Undo
                   </button>
                 </>
               ) : (
@@ -304,7 +305,7 @@ function PlayersPanel({
                     value={p.tableId ?? ""}
                     onChange={(e) => movePlayer(p.id, e.target.value || null)}
                   >
-                    <option value="">— intet bord —</option>
+                    <option value="">— no table —</option>
                     {s.tables.map((t) => (
                       <option key={t.id} value={t.id}>
                         {t.name}
@@ -312,13 +313,13 @@ function PlayersPanel({
                     ))}
                   </select>
                   <button className="btn small danger" onClick={() => eliminatePlayer(p.id)}>
-                    Ude
+                    Out
                   </button>
                 </>
               )}
               <button
                 className="btn small"
-                title="Slet deltageren helt"
+                title="Delete this player entirely"
                 onClick={() => removePlayer(p.id)}
               >
                 🗑
@@ -339,12 +340,12 @@ function TablesPanel({ s }: { s: S }) {
   return (
     <div className="panel">
       <h2>
-        Borde <span className="count">{s.tables.length}</span>
+        Tables <span className="count">{s.tables.length}</span>
       </h2>
       <div className="row">
         <input
           className="text"
-          placeholder={`Bord ${s.tables.length + 1}`}
+          placeholder={`Table ${s.tables.length + 1}`}
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
@@ -355,7 +356,7 @@ function TablesPanel({ s }: { s: S }) {
           max={12}
           value={capacity}
           onChange={(e) => setCapacity(Math.max(2, Number(e.target.value) || 2))}
-          title="Antal pladser"
+          title="Number of seats"
         />
         <button
           className="btn primary"
@@ -364,10 +365,10 @@ function TablesPanel({ s }: { s: S }) {
             setName("");
           }}
         >
-          + Opret bord
+          + Create table
         </button>
         <button className="btn" onClick={drawSeats} disabled={!s.tables.length}>
-          🎲 Fordel pladser tilfældigt
+          🎲 Random seat draw
         </button>
       </div>
 
@@ -381,19 +382,19 @@ function TablesPanel({ s }: { s: S }) {
               <h3>
                 {t.name}
                 <span className="cap">
-                  {seated.length}/{t.capacity} pladser{" "}
+                  {seated.length}/{t.capacity} seats{" "}
                   <button className="btn small danger" onClick={() => removeTable(t.id)}>
                     ✕
                   </button>
                 </span>
               </h3>
-              {seated.length === 0 && <div className="hint">Tomt bord</div>}
+              {seated.length === 0 && <div className="hint">Empty table</div>}
               {seated.map((p) => (
                 <div key={p.id} className="seat-row">
                   <span className="seat-no">{p.seat ?? "·"}</span>
                   <span className="name">{p.name}</span>
                   <button className="btn small danger" onClick={() => eliminatePlayer(p.id)}>
-                    Ude
+                    Out
                   </button>
                 </div>
               ))}
@@ -403,8 +404,8 @@ function TablesPanel({ s }: { s: S }) {
       </div>
       {s.tables.length === 0 && (
         <div className="hint">
-          Opret et eller flere borde og tryk “Fordel pladser tilfældigt” for at
-          trække pladser til alle deltagere.
+          Create one or more tables and press “Random seat draw” to seat all
+          players.
         </div>
       )}
     </div>
@@ -427,15 +428,15 @@ function ResultsPanel({
 
   return (
     <div className="panel">
-      <h2>Resultat</h2>
+      <h2>Results</h2>
       {done ? (
         <div className="hint" style={{ marginTop: 0 }}>
-          🏆 Turneringen er afgjort!
+          🏆 The tournament is decided!
         </div>
       ) : (
         <div className="hint" style={{ marginTop: 0 }}>
-          Placeringer registreres automatisk, når spillere meldes ude.
-          {eliminated.length > 0 && ` ${eliminated.length} er ude indtil videre.`}
+          Placements are recorded automatically when players are knocked out.
+          {eliminated.length > 0 && ` ${eliminated.length} out so far.`}
         </div>
       )}
 
@@ -443,12 +444,12 @@ function ResultsPanel({
         <div style={{ marginTop: 10 }}>
           {standings.slice(0, 10).map((p) => (
             <div key={p.id} className="player-row">
-              <span className="badge">{placeMap.get(p.id)}.</span>
+              <span className="badge">{ordinal(placeMap.get(p.id)!)}</span>
               <span className="name">{p.name}</span>
             </div>
           ))}
           {standings.length > 10 && (
-            <div className="hint">… og {standings.length - 10} flere</div>
+            <div className="hint">… and {standings.length - 10} more</div>
           )}
         </div>
       )}
@@ -456,7 +457,7 @@ function ResultsPanel({
       <div className="row" style={{ marginTop: 14 }}>
         {s.showResults ? (
           <button className="btn" onClick={() => setShowResults(false)}>
-            ⏹ Skjul resultat-film
+            ⏹ Hide results film
           </button>
         ) : (
           <button
@@ -464,7 +465,7 @@ function ResultsPanel({
             onClick={() => setShowResults(true)}
             disabled={s.eliminationOrder.length === 0}
           >
-            🎬 Vis resultat-film på storskærm
+            🎬 Play results film on big screen
           </button>
         )}
       </div>
@@ -473,22 +474,22 @@ function ResultsPanel({
         <button
           className="btn danger"
           onClick={() => {
-            if (confirm("Nulstil turneringen? Deltagere, borde og blinds beholdes.")) {
+            if (confirm("Reset the tournament? Players, tables and blinds are kept.")) {
               resetTournament();
             }
           }}
         >
-          ↺ Nulstil turnering
+          ↺ Reset tournament
         </button>
         <button
           className="btn danger"
           onClick={() => {
-            if (confirm("Slet ALT (deltagere, borde, resultater) og start forfra?")) {
+            if (confirm("Delete EVERYTHING (players, tables, results) and start over?")) {
               fullReset();
             }
           }}
         >
-          🗑 Slet alt
+          🗑 Delete everything
         </button>
       </div>
     </div>
