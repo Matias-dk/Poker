@@ -104,8 +104,8 @@ function SyncSetupWarning() {
           <b>Create Database</b>
         </li>
         <li>
-          Choose <b>Upstash for Redis</b> (free plan) and connect it to this
-          project
+          Choose <b>Blob</b> (fastest — Vercel&apos;s own, no signup) and
+          create/connect it to this project. Upstash for Redis works too.
         </li>
         <li>
           <b>Redeploy</b> the project (Deployments → ⋯ → Redeploy)

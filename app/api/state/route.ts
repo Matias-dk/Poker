@@ -1,20 +1,23 @@
 import { NextResponse } from "next/server";
+import { list, put } from "@vercel/blob";
 
 // ============================================================
-//  Delt turnerings-tilstand på tværs af enheder (valgfrit).
+//  Delt turnerings-tilstand på tværs af enheder.
 //
-//  Kræver en Redis-integration på Vercel (fx Upstash Redis fra
-//  Vercel Marketplace — gratis tier). Når integrationen er
-//  tilføjet, sættes miljøvariablerne automatisk, og kontrol-
-//  panel, storskærm og dealer-telefoner synkroniserer live.
-//
-//  Uden integrationen svarer API'et { enabled: false }, og
-//  appen kører videre med lokal synkronisering i én browser.
+//  Lager vælges automatisk efter hvad der er sat op på Vercel:
+//   1. Redis (Upstash/Vercel KV) — hvis REST-miljøvariabler findes
+//   2. Vercel Blob — hvis BLOB_READ_WRITE_TOKEN findes
+//      (Storage → Create Database → Blob → Create → Redeploy)
+//   3. Ingen af delene → { enabled: false }, og appen kører
+//      videre med lokal synkronisering i én browser.
 // ============================================================
 
 export const dynamic = "force-dynamic";
 
 const KEY = "rss-poker-state";
+const BLOB_PATH = `${KEY}.json`;
+
+// ---------- Redis-driver ----------
 
 function redisConfig(): { url: string; token: string } | null {
   const url =
@@ -48,6 +51,70 @@ async function redisSet(cfg: { url: string; token: string }, value: string): Pro
   });
 }
 
+// ---------- Blob-driver ----------
+
+function blobEnabled(): boolean {
+  return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+}
+
+/**
+ * Den offentlige blob-URL kan udledes af tokenet
+ * (vercel_blob_rw_<storeId>_...), så vi slipper for et
+ * list-kald pr. læsning. Falder tilbage til list() hvis
+ * konstruktionen ikke rammer.
+ */
+function blobDirectUrl(): string | null {
+  const token = process.env.BLOB_READ_WRITE_TOKEN ?? "";
+  const parts = token.split("_");
+  if (parts.length < 4 || parts[0] !== "vercel" || parts[1] !== "blob") return null;
+  const storeId = parts[3];
+  if (!storeId) return null;
+  return `https://${storeId.toLowerCase()}.public.blob.vercel-storage.com/${BLOB_PATH}`;
+}
+
+async function blobGet(): Promise<string | null> {
+  const direct = blobDirectUrl();
+  if (direct) {
+    const res = await fetch(`${direct}?t=${Date.now()}`, { cache: "no-store" });
+    if (res.ok) return await res.text();
+    if (res.status === 404) return null;
+  }
+  const { blobs } = await list({ prefix: KEY, limit: 1 });
+  if (!blobs.length) return null;
+  const res = await fetch(`${blobs[0].url}?t=${Date.now()}`, { cache: "no-store" });
+  if (!res.ok) return null;
+  return await res.text();
+}
+
+async function blobSet(value: string): Promise<void> {
+  // Ingen cacheControlMaxAge: minimum er 60 s, og læsningerne
+  // cache-buster alligevel med ?t=<nu>, så standarden er fint.
+  await put(BLOB_PATH, value, {
+    access: "public",
+    addRandomSuffix: false,
+    allowOverwrite: true,
+    contentType: "application/json",
+  });
+}
+
+// ---------- Fælles driver ----------
+
+type Driver = {
+  get: () => Promise<string | null>;
+  set: (value: string) => Promise<void>;
+};
+
+function pickDriver(): Driver | null {
+  const redis = redisConfig();
+  if (redis) {
+    return { get: () => redisGet(redis), set: (v) => redisSet(redis, v) };
+  }
+  if (blobEnabled()) {
+    return { get: blobGet, set: blobSet };
+  }
+  return null;
+}
+
 type Stored = { rev: number; state: Record<string, unknown> };
 
 function parseStored(raw: string | null): Stored | null {
@@ -62,23 +129,23 @@ function parseStored(raw: string | null): Stored | null {
 }
 
 export async function GET() {
-  const cfg = redisConfig();
-  if (!cfg) return NextResponse.json({ enabled: false });
+  const driver = pickDriver();
+  if (!driver) return NextResponse.json({ enabled: false });
   try {
-    const stored = parseStored(await redisGet(cfg));
+    const stored = parseStored(await driver.get());
     return NextResponse.json({
       enabled: true,
       rev: stored?.rev ?? 0,
       state: stored?.state ?? null,
     });
   } catch {
-    return NextResponse.json({ enabled: true, rev: 0, state: null, error: "redis" });
+    return NextResponse.json({ enabled: true, rev: 0, state: null, error: "storage" });
   }
 }
 
 export async function POST(req: Request) {
-  const cfg = redisConfig();
-  if (!cfg) return NextResponse.json({ enabled: false });
+  const driver = pickDriver();
+  if (!driver) return NextResponse.json({ enabled: false });
   let body: { state?: { eliminationOrder?: string[] }; baseRev?: number };
   try {
     body = await req.json();
@@ -91,7 +158,7 @@ export async function POST(req: Request) {
   const baseRev = typeof body.baseRev === "number" ? body.baseRev : 0;
 
   try {
-    const stored = parseStored(await redisGet(cfg));
+    const stored = parseStored(await driver.get());
     let nextState = body.state as Stored["state"] & { eliminationOrder?: string[] };
     let rev: number;
 
@@ -117,9 +184,9 @@ export async function POST(req: Request) {
       rev = stored.rev + 1;
     }
 
-    await redisSet(cfg, JSON.stringify({ rev, state: nextState }));
+    await driver.set(JSON.stringify({ rev, state: nextState }));
     return NextResponse.json({ enabled: true, rev, state: nextState });
   } catch {
-    return NextResponse.json({ enabled: true, error: "redis" }, { status: 500 });
+    return NextResponse.json({ enabled: true, error: "storage" }, { status: 500 });
   }
 }

@@ -34,17 +34,29 @@ Out of the box, state lives in the browser's localStorage and syncs live
 between tabs/windows in the **same browser on the same computer** — enough
 for control panel + big screen. The header shows *“This computer only”*.
 
-To let dealer phones (and any other device) join, add a free Redis to the
-Vercel project:
+To let dealer phones (and any other device) join, add server storage to
+the Vercel project. Two options are auto-detected:
+
+**Option A — Vercel Blob (fastest, no external provider):**
 
 1. In the Vercel dashboard open your project → **Storage** →
-   **Create Database** → choose **Upstash for Redis** (free plan).
-2. Connect it to the project (this auto-adds the
-   `UPSTASH_REDIS_REST_URL`/`UPSTASH_REDIS_REST_TOKEN` env vars —
+   **Create Database** → choose **Blob** → Create and connect it to the
+   project (auto-adds `BLOB_READ_WRITE_TOKEN`).
+2. Redeploy (Deployments → ⋯ → Redeploy).
+
+**Option B — Upstash for Redis (marketplace, also free):**
+
+1. **Storage** → **Create Database** → under Marketplace providers choose
+   **Upstash** → **Upstash for Redis** (free plan) and connect it
+   (auto-adds `UPSTASH_REDIS_REST_URL`/`UPSTASH_REDIS_REST_TOKEN`;
    `KV_REST_API_URL`/`KV_REST_API_TOKEN` also work).
-3. Redeploy. The header now shows *“Multi-device sync on”*, and all
-   devices sync within ~2 seconds. Simultaneous knockouts from several
-   dealers are merged so nothing is lost.
+2. Redeploy.
+
+Either way the header then shows *“Multi-device sync on”*, and all
+devices sync within ~2 seconds. Simultaneous knockouts from several
+dealers are merged so nothing is lost. If both are configured, Redis is
+preferred. (Note: an **Edge Config** store does NOT work — it is a
+read-only config store.)
 
 ## Fixed setup in code
 
