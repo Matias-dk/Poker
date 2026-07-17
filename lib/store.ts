@@ -98,8 +98,108 @@ let initialized = false;
 let channel: BroadcastChannel | null = null;
 const listeners = new Set<() => void>();
 
+// Synkronisering på tværs af enheder via /api/state (hvis en
+// Redis-integration er sat op på Vercel). 'checking' indtil
+// første svar; 'off' = kun lokal synkronisering i denne browser.
+export type SyncStatus = "checking" | "on" | "off";
+let syncStatus: SyncStatus = "checking";
+let lastServerRev = 0;
+let pushTimer: ReturnType<typeof setTimeout> | null = null;
+
 function emit() {
   listeners.forEach((fn) => fn());
+}
+
+function persistLocal() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch {
+    /* ignoreres */
+  }
+}
+
+function adoptRemote(remote: TournamentState) {
+  state = { ...defaultState(), ...remote };
+  persistLocal();
+  channel?.postMessage(state);
+  emit();
+}
+
+function hasContent(s: TournamentState): boolean {
+  return s.players.length > 0 || s.tables.length > 0 || s.eliminationOrder.length > 0;
+}
+
+function setSyncStatus(v: SyncStatus) {
+  if (syncStatus !== v) {
+    syncStatus = v;
+    emit();
+  }
+}
+
+async function pollOnce() {
+  if (getSyncStatus() === "off") return;
+  try {
+    const res = await fetch("/api/state", { cache: "no-store" });
+    const data = (await res.json()) as {
+      enabled: boolean;
+      rev?: number;
+      state?: TournamentState | null;
+    };
+    if (!data.enabled) {
+      setSyncStatus("off");
+      return;
+    }
+    setSyncStatus("on");
+    const rev = data.rev ?? 0;
+    if (data.state && rev > lastServerRev) {
+      lastServerRev = rev;
+      adoptRemote(data.state);
+    } else if (!data.state && rev === 0 && hasContent(state)) {
+      // Serveren er tom, men vi har lokal turneringsdata: send den op
+      schedulePush();
+    }
+  } catch {
+    /* offline — prøver igen ved næste poll */
+  }
+}
+
+function schedulePush() {
+  if (getSyncStatus() === "off") return;
+  if (pushTimer) clearTimeout(pushTimer);
+  pushTimer = setTimeout(async () => {
+    try {
+      const res = await fetch("/api/state", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ state, baseRev: lastServerRev }),
+      });
+      const data = (await res.json()) as {
+        enabled: boolean;
+        rev?: number;
+        state?: TournamentState;
+      };
+      if (!data.enabled) {
+        setSyncStatus("off");
+        return;
+      }
+      setSyncStatus("on");
+      if (typeof data.rev === "number") lastServerRev = data.rev;
+      // Hvis serveren flettede samtidige ændringer, overtag resultatet
+      if (data.state && JSON.stringify(data.state) !== JSON.stringify(state)) {
+        adoptRemote(data.state);
+      }
+    } catch {
+      /* offline — lokal tilstand er stadig gemt */
+    }
+  }, 250);
+}
+
+export function getSyncStatus(): SyncStatus {
+  return syncStatus;
+}
+
+export function useSyncStatus(): SyncStatus {
+  return useSyncExternalStore(subscribe, getSyncStatus, () => "checking" as SyncStatus);
 }
 
 function ensureInit() {
@@ -133,6 +233,9 @@ function ensureInit() {
       }
     }
   });
+  // Server-synkronisering: hent straks og poll derefter hvert 2. sekund
+  pollOnce();
+  setInterval(pollOnce, 2000);
   emit();
 }
 
@@ -159,13 +262,10 @@ export function useTournament(): TournamentState {
 function update(fn: (s: TournamentState) => TournamentState) {
   ensureInit();
   state = fn(state);
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch {
-    /* ignoreres */
-  }
+  persistLocal();
   channel?.postMessage(state);
   emit();
+  schedulePush();
 }
 
 // ---------- Afledte hjælpere ----------

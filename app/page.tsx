@@ -17,6 +17,7 @@ import {
   nextLevel,
   ordinal,
   pauseTimer,
+  useSyncStatus,
   placements,
   prevLevel,
   removeLevelRow,
@@ -59,6 +60,7 @@ export default function AdminPage() {
           <h1 className="goldtext">{s.title}</h1>
           <div className="sub">Control panel — run the tournament from here</div>
         </div>
+        <SyncPill />
         <div className="spacer" />
         <a href="/display" target="_blank" rel="noopener">
           <button className="btn primary big">Open big screen ↗</button>
@@ -81,6 +83,29 @@ export default function AdminPage() {
 }
 
 type S = ReturnType<typeof useTournament>;
+
+function SyncPill() {
+  const sync = useSyncStatus();
+  if (sync === "checking") {
+    return (
+      <span className="sync-pill">
+        <span className="dot" /> checking sync…
+      </span>
+    );
+  }
+  return sync === "on" ? (
+    <span className="sync-pill on" title="Dealer phone links work across devices">
+      <span className="dot" /> Multi-device sync on
+    </span>
+  ) : (
+    <span
+      className="sync-pill off"
+      title="Add the Upstash Redis integration on Vercel to let dealer phones connect"
+    >
+      <span className="dot" /> This computer only
+    </span>
+  );
+}
 
 function ClockPanel({ s, now }: { s: S; now: number }) {
   const level = currentLevel(s);
@@ -278,7 +303,7 @@ function PlayersPanel({
         />
       </div>
 
-      <div style={{ marginTop: 14 }}>
+      <div className="player-list" style={{ marginTop: 14 }}>
         {s.players.length === 0 && (
           <div className="hint">
             No players yet. Paste names above or upload a file — you can also
@@ -398,6 +423,7 @@ function TablesPanel({ s }: { s: S }) {
                   </button>
                 </div>
               ))}
+              <TableLink tableId={t.id} />
             </div>
           );
         })}
@@ -408,6 +434,33 @@ function TablesPanel({ s }: { s: S }) {
           players.
         </div>
       )}
+    </div>
+  );
+}
+
+function TableLink({ tableId }: { tableId: string }) {
+  const [copied, setCopied] = useState(false);
+  const path = `/table/${tableId}`;
+
+  async function copy() {
+    const url = `${window.location.origin}${path}`;
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      prompt("Copy the dealer link:", url);
+      return;
+    }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  }
+
+  return (
+    <div className="table-link">
+      <span title="Dealer link — open on the dealer's phone">📱</span>
+      <code>{path}</code>
+      <button className="btn small" onClick={copy}>
+        {copied ? "Copied ✓" : "Copy link"}
+      </button>
     </div>
   );
 }

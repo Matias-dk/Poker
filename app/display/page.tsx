@@ -128,7 +128,9 @@ function Dashboard({ s, now }: { s: TournamentState; now: number }) {
 
         {standings.length > 0 && (
           <aside className="display-standings">
-            <h3>🏅 Standings</h3>
+            <h3>
+              🏅 Standings <span className="n">· {standings.length}</span>
+            </h3>
             <ul>
               {standings.map((p) => (
                 <li key={p.id}>

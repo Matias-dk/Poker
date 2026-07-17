@@ -377,6 +377,127 @@ select.sel {
   line-height: 1.5;
 }
 
+.player-list {
+  max-height: 480px;
+  overflow-y: auto;
+}
+
+.sync-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  padding: 3px 10px;
+  white-space: nowrap;
+}
+
+.sync-pill .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #6b7a73;
+}
+
+.sync-pill.on .dot {
+  background: #2fbf71;
+}
+
+.sync-pill.off .dot {
+  background: #c9a227;
+}
+
+.table-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.table-link code {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 6px;
+  padding: 3px 6px;
+}
+
+/* ==================== DEALER-SIDE (mobil) ==================== */
+
+.tablepage {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 14px 14px 60px;
+}
+
+.tablepage-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0 14px;
+}
+
+.tablepage-header h1 {
+  font-size: 22px;
+}
+
+.tablepage-header .sub {
+  color: var(--muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.sync-warning {
+  background: rgba(229, 72, 77, 0.12);
+  border: 1px solid rgba(229, 72, 77, 0.5);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+
+.dealer-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  font-size: 17px;
+}
+
+.dealer-row .seat-no {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  width: 24px;
+  flex-shrink: 0;
+}
+
+.dealer-row .name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dealer-row.out .name {
+  color: var(--muted);
+  text-decoration: line-through;
+  font-size: 14px;
+}
+
+.out-btn {
+  font-weight: 800;
+  padding: 10px 18px;
+  font-size: 15px;
+}
+
 /* ==================== STORSKÆRM ==================== */
 
 .display {
@@ -384,8 +505,7 @@ select.sel {
   background: radial-gradient(ellipse 120% 90% at 50% 20%, var(--felt-1), var(--felt-2) 75%);
   display: flex;
   flex-direction: column;
-  padding: 24px 36px 28px;
-  overflow: hidden;
+  padding: 16px 28px 20px;
 }
 
 .display-header {
@@ -406,22 +526,22 @@ select.sel {
   display: flex;
   align-items: stretch;
   justify-content: center;
-  gap: 3vw;
-  margin: 2vh 0 2.5vh;
+  gap: 2.2vw;
+  margin: 1.2vh 0 1.6vh;
   flex-wrap: wrap;
 }
 
 .display-clockbox {
   text-align: center;
-  padding: 2vh 3vw;
+  padding: 1.2vh 2.6vw;
   background: var(--panel);
   border: 1px solid var(--panel-border);
   border-radius: 24px;
-  min-width: 320px;
+  min-width: 290px;
 }
 
 .display-levelname {
-  font-size: clamp(15px, 1.5vw, 22px);
+  font-size: clamp(13px, 1.2vw, 19px);
   text-transform: uppercase;
   letter-spacing: 0.2em;
   color: var(--gold);
@@ -429,7 +549,7 @@ select.sel {
 }
 
 .display-clock {
-  font-size: clamp(64px, 10vw, 150px);
+  font-size: clamp(54px, 7.5vw, 118px);
   font-weight: 900;
   font-variant-numeric: tabular-nums;
   line-height: 1.05;
@@ -461,31 +581,31 @@ select.sel {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 1.2vh;
+  gap: 0.8vh;
   text-align: center;
-  padding: 2vh 3vw;
+  padding: 1.2vh 2.6vw;
   background: var(--panel);
   border: 1px solid var(--panel-border);
   border-radius: 24px;
-  min-width: 300px;
+  min-width: 280px;
 }
 
 .display-blindsbox .label {
-  font-size: clamp(13px, 1.2vw, 18px);
+  font-size: clamp(12px, 1vw, 16px);
   text-transform: uppercase;
   letter-spacing: 0.2em;
   color: var(--muted);
 }
 
 .display-blinds {
-  font-size: clamp(44px, 6.5vw, 100px);
+  font-size: clamp(38px, 5vw, 80px);
   font-weight: 900;
   font-variant-numeric: tabular-nums;
   line-height: 1.05;
 }
 
 .display-nextblinds {
-  font-size: clamp(15px, 1.6vw, 24px);
+  font-size: clamp(13px, 1.3vw, 20px);
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
@@ -493,83 +613,96 @@ select.sel {
 .display-stats {
   display: flex;
   justify-content: center;
-  gap: 2vw;
+  gap: 1.6vw;
   flex-wrap: wrap;
-  margin-bottom: 2.5vh;
+  margin-bottom: 1.6vh;
 }
 
 .stat {
   text-align: center;
-  padding: 1vh 2.2vw;
+  padding: 0.8vh 1.8vw;
   background: var(--panel);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
 }
 
 .stat .value {
-  font-size: clamp(24px, 3vw, 44px);
+  font-size: clamp(20px, 2.3vw, 34px);
   font-weight: 800;
   font-variant-numeric: tabular-nums;
 }
 
 .stat .label {
   color: var(--muted);
-  font-size: clamp(11px, 1vw, 15px);
+  font-size: clamp(10px, 0.9vw, 14px);
   text-transform: uppercase;
   letter-spacing: 0.15em;
 }
 
 .display-body {
   display: flex;
-  gap: 1.6vw;
-  align-items: flex-start;
+  flex-direction: column;
+  gap: 1.6vh;
   flex: 1;
 }
 
 .display-tables {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.4vw;
+  grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
+  gap: 1vw;
   align-content: start;
-  flex: 1;
+}
+
+.display-table {
+  background: rgba(7, 31, 24, 0.55);
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+  padding: 1vh 0.9vw;
 }
 
 .display-standings {
-  width: clamp(220px, 20vw, 340px);
-  flex-shrink: 0;
+  width: 100%;
   background: rgba(240, 169, 29, 0.07);
   border: 1px solid var(--panel-border);
-  border-radius: 18px;
-  padding: 1.4vh 1.2vw;
+  border-radius: 14px;
+  padding: 1vh 1.2vw;
 }
 
 .display-standings h3 {
   color: var(--gold);
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  font-size: clamp(13px, 1.2vw, 18px);
-  margin-bottom: 0.8vh;
+  font-size: clamp(12px, 1vw, 16px);
+  margin-bottom: 0.6vh;
+}
+
+.display-standings h3 .n {
+  color: var(--muted);
+  letter-spacing: 0;
 }
 
 .display-standings ul {
   list-style: none;
+  columns: 12rem auto;
+  column-gap: 1.6vw;
 }
 
 .display-standings li {
   display: flex;
-  gap: 0.6em;
-  font-size: clamp(14px, 1.3vw, 20px);
-  padding: 0.45vh 0;
+  gap: 0.5em;
+  font-size: clamp(11px, 0.95vw, 16px);
+  padding: 0.25vh 0;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   white-space: nowrap;
   overflow: hidden;
+  break-inside: avoid;
 }
 
 .display-standings .placeno {
   color: var(--gold);
   font-variant-numeric: tabular-nums;
   font-weight: 700;
-  width: 2.6em;
+  width: 3.2em;
   flex-shrink: 0;
 }
 
@@ -578,30 +711,14 @@ select.sel {
   text-overflow: ellipsis;
 }
 
-@media (max-width: 900px) {
-  .display-body {
-    flex-direction: column;
-  }
-  .display-standings {
-    width: 100%;
-  }
-}
-
-.display-table {
-  background: rgba(7, 31, 24, 0.55);
-  border: 1px solid var(--panel-border);
-  border-radius: 18px;
-  padding: 1.4vh 1.2vw;
-}
-
 .display-table h3 {
   color: var(--gold);
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  font-size: clamp(13px, 1.2vw, 18px);
+  font-size: clamp(12px, 1vw, 16px);
   display: flex;
   justify-content: space-between;
-  margin-bottom: 0.8vh;
+  margin-bottom: 0.5vh;
 }
 
 .display-table h3 .n {
@@ -614,8 +731,8 @@ select.sel {
 }
 
 .display-table li {
-  font-size: clamp(14px, 1.35vw, 21px);
-  padding: 0.45vh 0;
+  font-size: clamp(12px, 1.05vw, 17px);
+  padding: 0.3vh 0;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   white-space: nowrap;
   overflow: hidden;

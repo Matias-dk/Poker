@@ -20,14 +20,31 @@ database, ready for Vercel.
    for fullscreen. It updates live while you run things from the control
    panel, and shows a standings list of everyone knocked out and their
    placements.
-3. **The results film**: when the tournament is over, press
+3. **Dealer links**: every table card in the control panel has a unique
+   link (`/table/<id>`) with a *Copy link* button. Open it on the dealer's
+   phone — they see their table's players and can mark knockouts (with an
+   Undo button) directly from the phone.
+4. **The results film**: when the tournament is over, press
    *“🎬 Play results film on big screen”* — placements are revealed one at a
    time from last place, ending with the top-3 podium and confetti.
 
-> **Important:** There is no database. State is stored in the browser's
-> localStorage and synced live between tabs/windows in the **same browser on
-> the same computer**. Run both the control panel and the big screen from
-> the computer connected to the big screen. Data survives page reloads.
+## Multi-device sync (for dealer phones)
+
+Out of the box, state lives in the browser's localStorage and syncs live
+between tabs/windows in the **same browser on the same computer** — enough
+for control panel + big screen. The header shows *“This computer only”*.
+
+To let dealer phones (and any other device) join, add a free Redis to the
+Vercel project:
+
+1. In the Vercel dashboard open your project → **Storage** →
+   **Create Database** → choose **Upstash for Redis** (free plan).
+2. Connect it to the project (this auto-adds the
+   `UPSTASH_REDIS_REST_URL`/`UPSTASH_REDIS_REST_TOKEN` env vars —
+   `KV_REST_API_URL`/`KV_REST_API_TOKEN` also work).
+3. Redeploy. The header now shows *“Multi-device sync on”*, and all
+   devices sync within ~2 seconds. Simultaneous knockouts from several
+   dealers are merged so nothing is lost.
 
 ## Fixed setup in code
 
