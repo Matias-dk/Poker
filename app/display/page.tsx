@@ -170,9 +170,12 @@ function ResultsFilm({ s }: { s: TournamentState }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [s.players, s.eliminationOrder]);
 
-  // step 0 = intro, then one per reveal, finally the podium
+  // step 0 = intro, then one per reveal, finally the podium.
+  // filmTop limits how far down the countdown starts (0 = all places).
   const [step, setStep] = useState(0);
-  const reveals = standings.filter((x) => x.place > 3);
+  const reveals = standings.filter(
+    (x) => x.place > 3 && (s.filmTop === 0 || x.place <= s.filmTop)
+  );
   const totalSteps = 1 + reveals.length + 1;
 
   useEffect(() => {
@@ -196,7 +199,9 @@ function ResultsFilm({ s }: { s: TournamentState }) {
           <div className="film-title goldtext" style={{ marginTop: "3vh" }}>
             {s.title}
           </div>
-          <div className="film-sub">The results…</div>
+          <div className="film-sub">
+            {s.filmTop > 0 ? `The top ${s.filmTop}…` : "The results…"}
+          </div>
         </>
       )}
 
@@ -227,6 +232,7 @@ function ResultsFilm({ s }: { s: TournamentState }) {
           {standings.length > 3 && (
             <div className="film-list">
               {[...standings]
+                .filter((x) => x.place <= Math.max(10, s.filmTop))
                 .sort((a, b) => a.place - b.place)
                 .map((x) => (
                   <div key={x.place}>

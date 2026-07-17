@@ -25,11 +25,13 @@ import {
   removeTable,
   resetLevelClock,
   resetTournament,
+  setFilmTop,
   setShowResults,
   startTimer,
   tick,
   undoElimination,
   updateLevel,
+  updateTable,
   useTournament,
 } from "@/lib/store";
 
@@ -407,7 +409,21 @@ function TablesPanel({ s }: { s: S }) {
               <h3>
                 {t.name}
                 <span className="cap">
-                  {seated.length}/{t.capacity} seats{" "}
+                  {seated.length}/
+                  <input
+                    className="cap-input"
+                    type="number"
+                    min={2}
+                    max={12}
+                    value={t.capacity}
+                    title="Number of seats — change any time"
+                    onChange={(e) =>
+                      updateTable(t.id, {
+                        capacity: Math.max(2, Number(e.target.value) || 2),
+                      })
+                    }
+                  />{" "}
+                  seats{" "}
                   <button className="btn small danger" onClick={() => removeTable(t.id)}>
                     ✕
                   </button>
@@ -508,6 +524,23 @@ function ResultsPanel({
       )}
 
       <div className="row" style={{ marginTop: 14 }}>
+        <label className="hint" style={{ marginTop: 0 }} htmlFor="film-top">
+          Film counts down from:
+        </label>
+        <select
+          id="film-top"
+          className="sel"
+          value={s.filmTop}
+          onChange={(e) => setFilmTop(Number(e.target.value))}
+        >
+          <option value={0}>All places</option>
+          <option value={20}>Top 20</option>
+          <option value={10}>Top 10</option>
+          <option value={5}>Top 5</option>
+          <option value={3}>Podium only</option>
+        </select>
+      </div>
+      <div className="row" style={{ marginTop: 10 }}>
         {s.showResults ? (
           <button className="btn" onClick={() => setShowResults(false)}>
             ⏹ Hide results film

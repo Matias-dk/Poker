@@ -313,6 +313,19 @@ select.sel {
   color: var(--muted);
   font-size: 13px;
   font-weight: 400;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.cap-input {
+  width: 48px;
+  background: #0f1418;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--ink);
+  border-radius: 6px;
+  padding: 2px 4px;
+  font-size: 13px;
 }
 
 .seat-row {

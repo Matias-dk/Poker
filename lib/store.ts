@@ -48,6 +48,7 @@ export type TournamentState = {
   lastAdvanceAt: number; // værn mod dobbelt niveau-skift fra flere faner
   eliminationOrder: string[]; // spiller-id'er i den rækkefølge de røg ud
   showResults: boolean;
+  filmTop: number; // resultat-filmens nedtælling starter her (0 = alle placeringer)
 };
 
 const STORAGE_KEY = "rss-poker-state-v1";
@@ -88,6 +89,7 @@ function defaultState(): TournamentState {
     lastAdvanceAt: 0,
     eliminationOrder: [],
     showResults: false,
+    filmTop: 0,
   };
 }
 
@@ -552,6 +554,11 @@ export function removeLevelRow(index: number) {
 
 export function setShowResults(show: boolean) {
   update((s) => ({ ...s, showResults: show }));
+}
+
+/** Hvor resultat-filmens nedtælling starter (0 = alle placeringer). */
+export function setFilmTop(top: number) {
+  update((s) => ({ ...s, filmTop: Math.max(0, top) }));
 }
 
 /** Nulstil turneringen, men behold deltagere, borde og blind-struktur. */
