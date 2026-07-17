@@ -13,6 +13,14 @@ import type { BlindLevel, TableConfig } from "@/lib/store";
 
 export const TOURNAMENT_TITLE = "Ranum Summer School Poker";
 
+// Supabase-projektet der gemmer turneringen på serveren, så
+// storskærm og dealer-telefoner kan synkronisere på tværs af
+// enheder. Nøglen er en offentlig "publishable key" — den må
+// gerne ligge i koden. Kør SQL-opsætningen fra README én gang.
+export const SUPABASE_URL = "https://wyifsfsatwcpqamkeiih.supabase.co";
+export const SUPABASE_PUBLISHABLE_KEY =
+  "sb_publishable_Jyj5I6VDkUkEZn-b_UktNg_PvDcmJSK";
+
 // Én deltager pr. linje — skriv navnene her, eller upload dem i kontrolpanelet.
 export const DEFAULT_PLAYERS: string[] = [
   // "Anna",

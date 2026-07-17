@@ -34,29 +34,36 @@ Out of the box, state lives in the browser's localStorage and syncs live
 between tabs/windows in the **same browser on the same computer** — enough
 for control panel + big screen. The header shows *“This computer only”*.
 
-To let dealer phones (and any other device) join, add server storage to
-the Vercel project. Two options are auto-detected:
+The app stores shared state in **Supabase** (configured in
+[`data/config.ts`](data/config.ts) — the publishable key is safe to keep
+in code). One-time setup:
 
-**Option A — Vercel Blob (fastest, no external provider):**
+1. Open your project on [supabase.com](https://supabase.com) →
+   **SQL Editor** → **New query**.
+2. Paste and **Run** this once:
 
-1. In the Vercel dashboard open your project → **Storage** →
-   **Create Database** → choose **Blob** → Create and connect it to the
-   project (auto-adds `BLOB_READ_WRITE_TOKEN`).
-2. Redeploy (Deployments → ⋯ → Redeploy).
+```sql
+create table if not exists public.tournament_state (
+  id text primary key,
+  rev bigint not null default 0,
+  state jsonb,
+  updated_at timestamptz not null default now()
+);
 
-**Option B — Upstash for Redis (marketplace, also free):**
+alter table public.tournament_state disable row level security;
+```
 
-1. **Storage** → **Create Database** → under Marketplace providers choose
-   **Upstash** → **Upstash for Redis** (free plan) and connect it
-   (auto-adds `UPSTASH_REDIS_REST_URL`/`UPSTASH_REDIS_REST_TOKEN`;
-   `KV_REST_API_URL`/`KV_REST_API_TOKEN` also work).
-2. Redeploy.
+That's it — no Vercel changes needed. The control panel header flips to
+*“Multi-device sync on”* within a few seconds, and all devices
+(control panel, big screen, dealer phones) sync within ~2 seconds.
+Simultaneous knockouts from several dealers are merged so nothing is
+lost.
 
-Either way the header then shows *“Multi-device sync on”*, and all
-devices sync within ~2 seconds. Simultaneous knockouts from several
-dealers are merged so nothing is lost. If both are configured, Redis is
-preferred. (Note: an **Edge Config** store does NOT work — it is a
-read-only config store.)
+Alternative backends are auto-detected if you prefer them instead:
+Upstash Redis / Vercel KV (via `UPSTASH_REDIS_REST_URL`+`TOKEN` or
+`KV_REST_API_URL`+`TOKEN`) or Vercel Blob (via `BLOB_READ_WRITE_TOKEN`).
+Supabase takes priority when configured. (An **Edge Config** store does
+NOT work — it is a read-only config store.)
 
 ## Fixed setup in code
 

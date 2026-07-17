@@ -139,7 +139,8 @@ function setSyncStatus(v: SyncStatus) {
 }
 
 async function pollOnce() {
-  if (getSyncStatus() === "off") return;
+  // Poller altid — så genopdages serveren automatisk, hvis
+  // lagringen først bliver sat op (eller kommer sig) undervejs.
   try {
     const res = await fetch("/api/state", { cache: "no-store" });
     const data = (await res.json()) as {
@@ -166,7 +167,6 @@ async function pollOnce() {
 }
 
 function schedulePush() {
-  if (getSyncStatus() === "off") return;
   if (pushTimer) clearTimeout(pushTimer);
   pushTimer = setTimeout(async () => {
     try {

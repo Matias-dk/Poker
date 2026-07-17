@@ -93,25 +93,22 @@ function SyncSetupWarning() {
   if (sync !== "off") return null;
   return (
     <div className="sync-warning" style={{ marginBottom: 20 }}>
-      <b>⚠ Server storage is not set up — dealer phone links will NOT work.</b>
+      <b>⚠ Server storage is not reachable — dealer phone links will NOT work.</b>
       <br />
-      The tournament is currently only stored in this browser. To store it on
-      the server so every device (dealer phones, other computers) sees the
-      same tournament:
+      The tournament is currently only stored in this browser. This app is
+      set up to use Supabase — the most likely fix is that the database
+      table has not been created yet:
       <ol style={{ margin: "8px 0 0 20px", lineHeight: 1.7 }}>
         <li>
-          Open the project in Vercel → <b>Storage</b> tab →{" "}
-          <b>Create Database</b>
+          Open your project on <b>supabase.com</b> → <b>SQL Editor</b>
         </li>
         <li>
-          Choose <b>Blob</b> (fastest — Vercel&apos;s own, no signup) and
-          create/connect it to this project. Upstash for Redis works too.
-        </li>
-        <li>
-          <b>Redeploy</b> the project (Deployments → ⋯ → Redeploy)
+          Run the setup SQL from the project README (creates the{" "}
+          <code>tournament_state</code> table)
         </li>
       </ol>
-      When done, this banner disappears and the header shows{" "}
+      This page rechecks every 2 seconds — once the table exists, this
+      banner disappears by itself and the header shows{" "}
       <b>“Multi-device sync on”</b>.
     </div>
   );
