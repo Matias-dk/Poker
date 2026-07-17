@@ -6,6 +6,7 @@
 import { useEffect, useState } from "react";
 import Logo from "@/components/Logo";
 import {
+  addPlayerToTable,
   currentLevel,
   eliminatePlayer,
   formatClock,
@@ -104,6 +105,7 @@ export default function TablePage({ params }: { params: { id: string } }) {
             </button>
           </div>
         ))}
+        <AddPlayerRow tableId={table.id} full={seated.length >= table.capacity} />
       </div>
 
       {recentOutHere.length > 0 && (
@@ -120,6 +122,39 @@ export default function TablePage({ params }: { params: { id: string } }) {
               </button>
             </div>
           ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AddPlayerRow({ tableId, full }: { tableId: string; full: boolean }) {
+  const [name, setName] = useState("");
+
+  function submit() {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    addPlayerToTable(trimmed, tableId);
+    setName("");
+  }
+
+  return (
+    <div className="dealer-add">
+      <input
+        className="text"
+        placeholder="Add player at this table…"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") submit();
+        }}
+      />
+      <button className="btn primary" onClick={submit} disabled={!name.trim()}>
+        + Add
+      </button>
+      {full && (
+        <div className="hint" style={{ width: "100%" }}>
+          The table is full — a new player still gets the next seat number.
         </div>
       )}
     </div>

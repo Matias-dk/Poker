@@ -342,6 +342,37 @@ export function addPlayers(names: string[]) {
   }));
 }
 
+/** Opret en spiller direkte ved et bord (bruges fra dealer-siden). */
+export function addPlayerToTable(name: string, tableId: string) {
+  const trimmed = name.trim();
+  if (!trimmed) return;
+  update((s) => {
+    const table = s.tables.find((t) => t.id === tableId);
+    if (!table) return s;
+    // Første ledige plads blandt de aktive ved bordet
+    const out = new Set(s.eliminationOrder);
+    const taken = new Set(
+      s.players
+        .filter((p) => p.tableId === tableId && !out.has(p.id) && p.seat !== null)
+        .map((p) => p.seat as number)
+    );
+    let seat: number | null = null;
+    for (let i = 1; i <= Math.max(table.capacity, taken.size + 1); i++) {
+      if (!taken.has(i)) {
+        seat = i;
+        break;
+      }
+    }
+    return {
+      ...s,
+      players: [
+        ...s.players,
+        { id: makeId("player"), name: trimmed, tableId, seat },
+      ],
+    };
+  });
+}
+
 export function removePlayer(id: string) {
   update((s) => ({
     ...s,

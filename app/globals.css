@@ -511,6 +511,20 @@ select.sel {
   font-size: 15px;
 }
 
+.dealer-add {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 12px;
+  margin-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.dealer-add input.text {
+  flex: 1;
+  min-width: 160px;
+}
+
 /* ==================== STORSKÆRM ==================== */
 
 .display {
