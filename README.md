@@ -22,8 +22,12 @@ database, ready for Vercel.
    placements.
 3. **Dealer links**: every table card in the control panel has a unique
    link (`/table/<id>`) with a *Copy link* button. Open it on the dealer's
-   phone — they see their table's players and can mark knockouts (with an
-   Undo button) directly from the phone.
+   phone — they see their table's players, can mark knockouts (with an
+   Undo button) and add late-registering players directly from the phone.
+   Press *“📱 Dealer QR codes”* (or open `/qr`) for a printable page with
+   one big QR code per table — dealers just scan their table's code, and
+   the dealer page shows the table name in large letters so everyone can
+   see which table they are on.
 4. **The results film**: when the tournament is over, press
    *“🎬 Play results film on big screen”* — placements are revealed one at a
    time from last place, ending with the top-3 podium and confetti.

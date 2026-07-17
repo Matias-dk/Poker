@@ -425,6 +425,11 @@ function TablesPanel({ s }: { s: S }) {
         <button className="btn" onClick={drawSeats} disabled={!s.tables.length}>
           🎲 Random seat draw
         </button>
+        {s.tables.length > 0 && (
+          <a href="/qr" target="_blank" rel="noopener">
+            <button className="btn">📱 Dealer QR codes</button>
+          </a>
+        )}
       </div>
 
       <div className="table-cards" style={{ marginTop: 14 }}>

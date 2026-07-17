@@ -74,13 +74,15 @@ export default function TablePage({ params }: { params: { id: string } }) {
       <header className="tablepage-header">
         <Logo size={40} />
         <div>
-          <h1 className="goldtext">{table.name}</h1>
+          <div className="sub">{s.title}</div>
           <div className="sub">
             {level.isBreak ? "Break" : `Blinds ${level.sb} / ${level.bb}`} ·{" "}
             {formatClock(remaining)}
           </div>
         </div>
       </header>
+
+      <div className="table-banner goldtext">{table.name}</div>
 
       {sync === "off" && (
         <div className="sync-warning">

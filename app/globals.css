@@ -441,6 +441,99 @@ select.sel {
   padding: 3px 6px;
 }
 
+/* ==================== QR-SIDE ==================== */
+
+.qrpage {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px 24px 60px;
+}
+
+.qrpage-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 0 20px;
+}
+
+.qrpage-header h1 {
+  font-size: 24px;
+}
+
+.qrpage-header .sub {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.qrpage-header .spacer {
+  flex: 1;
+}
+
+.qr-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.qr-card {
+  background: #ffffff;
+  color: #1a1a1a;
+  border-radius: 18px;
+  padding: 18px;
+  text-align: center;
+  break-inside: avoid;
+  border: 3px solid var(--gold);
+}
+
+.qr-card .qr-name {
+  font-size: 30px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 10px;
+}
+
+.qr-card img {
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+.qr-card .qr-loading {
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+}
+
+.qr-card .qr-url {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #555;
+  word-break: break-all;
+}
+
+@media print {
+  body {
+    background: #fff;
+  }
+  .qrpage-header .sub,
+  .no-print {
+    display: none !important;
+  }
+  .qrpage-header h1 {
+    color: #1a1a1a;
+    -webkit-text-fill-color: initial;
+    background: none;
+  }
+  .qr-card {
+    border-color: #1a1a1a;
+  }
+}
+
 /* ==================== DEALER-SIDE (mobil) ==================== */
 
 .tablepage {
@@ -464,6 +557,16 @@ select.sel {
   color: var(--muted);
   font-size: 13px;
   font-variant-numeric: tabular-nums;
+}
+
+.table-banner {
+  font-size: 44px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: center;
+  padding: 6px 0 16px;
+  line-height: 1.1;
 }
 
 .sync-warning {
